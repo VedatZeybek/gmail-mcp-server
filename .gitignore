@@ -1,2 +1,5 @@
 secrets/credentials.json
 secrets/token.json
+__pycache__/
+*.pyc
+output/
