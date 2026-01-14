@@ -76,7 +76,6 @@ def _safe_read_file(path: str, base_dir: Optional[str]) -> bytes:
         if not (p == b or p.startswith(b + os.sep)):
             raise ValueError(f"Attachment path not allowed (outside base dir): {p}")
 
-    # Boyut limiti (default 20MB)
     max_mb = int(os.getenv("MAX_ATTACHMENT_MB", "20"))
     size = os.path.getsize(p)
     if size > max_mb * 1024 * 1024:
@@ -92,7 +91,6 @@ def _resolve_attachment_path(path: str) -> str:
     """
     base_dir = os.getenv("ATTACHMENTS_BASE_DIR", "/shared")
 
-    # relative path ise base_dir altına koy
     if path and not os.path.isabs(path):
         path = os.path.join(base_dir, path)
 
@@ -126,15 +124,12 @@ def build_raw_email(
         if content_b64 and path:
             raise ValueError("attachment: provide either content_base64 OR path, not both")
 
-        # 1) path varsa oku (volume)
         if path:
             path = _resolve_attachment_path(path)
 
-            # filename yoksa path'ten türet
             if not filename:
                 filename = os.path.basename(path)
 
-            # mime_type yoksa filename'den tahmin et
             if not mime_type:
                 guessed, _ = mimetypes.guess_type(filename)
                 mime_type = guessed or "application/octet-stream"
@@ -142,7 +137,6 @@ def build_raw_email(
             base_dir = os.getenv("ATTACHMENTS_BASE_DIR", "/shared")
             data = _safe_read_file(path, base_dir)
 
-        # 2) base64 varsa decode et
         elif content_b64:
             if not filename:
                 raise ValueError("attachment with content_base64 requires filename")
